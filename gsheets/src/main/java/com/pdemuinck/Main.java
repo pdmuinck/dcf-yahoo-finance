@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.dhatim.fastexcel.BorderSide;
+import org.dhatim.fastexcel.Color;
+import org.dhatim.fastexcel.ConditionalFormattingExpressionRule;
 import org.dhatim.fastexcel.HyperLink;
 import org.dhatim.fastexcel.Range;
 import org.dhatim.fastexcel.Workbook;
@@ -39,7 +43,7 @@ public class Main {
          Workbook wb = new Workbook(os, "S&P500", "1.0")) {
       Worksheet summary = wb.newWorksheet("Summary");
       List<String> labels =
-          List.of("Ticker", "Discount Rate", "Terminal Value", "DCF Valuation", "Current Price",
+          List.of("WorkSheet", "Ticker", "Discount Rate", "Terminal Value", "DCF Valuation", "Current Price",
               "Current Margin of Safety");
 
       for (int c = 0; c < labels.size(); c++) {
@@ -55,6 +59,12 @@ public class Main {
             discountRate,
             terminalValue);
         Worksheet tickerSheet = wb.newWorksheet(ticker.getTicker());
+        tickerSheet.width(0, 30);
+        tickerSheet.width(1, 20);
+        tickerSheet.width(3, 30);
+        tickerSheet.width(4, 30);
+        tickerSheet.width(5, 30);
+        tickerSheet.style(0, 0).bold().set();
         tickerSheet.value(0, 0, ticker.getTicker());
         tickerSheet.value(2, 0, "current");
         tickerSheet.value(3, 0, "H52");
@@ -73,8 +83,11 @@ public class Main {
         tickerSheet.formula(3, 1, "GOOGLEFINANCE(\"" + ticker.getTicker() + "\";\"high52\")");
         tickerSheet.formula(4, 1, "GOOGLEFINANCE(\"" + ticker.getTicker() + "\";\"low52\")");
         tickerSheet.value(5, 1, ticker.getGrowthNext5Years());
+        tickerSheet.style(5, 1).format("0.00%").set();
         tickerSheet.value(6, 1, ticker.getGrowthNext5Years() * 0.8);
+        tickerSheet.style(6, 1).format("0.00%").set();
         tickerSheet.value(7, 1, discountRate);
+        tickerSheet.style(7, 1).format("0.00%").set();
         tickerSheet.value(8, 1, terminalValue);
         tickerSheet.value(9, 1, ticker.getFreeCashFlow());
         tickerSheet.value(10, 1, ticker.getStockBasedCompensation());
@@ -93,16 +106,16 @@ public class Main {
         tickerSheet.value(10, 3, 9);
         tickerSheet.value(11, 3, 10);
         tickerSheet.value(12, 3, 10);
+        tickerSheet.style(13, 3).bold().horizontalAlignment("center").set();
+        tickerSheet.style(14, 3).bold().horizontalAlignment("center").set();
+        tickerSheet.style(15, 3).bold().horizontalAlignment("center").set();
+        tickerSheet.style(16, 3).bold().horizontalAlignment("center").set();
+        tickerSheet.style(17, 3).bold().horizontalAlignment("center").verticalAlignment("center").set();
         tickerSheet.value(13, 3, "Present Value of Future Cash Flows");
         tickerSheet.value(14, 3, "Intrinsic Value");
         tickerSheet.value(15, 3, "Intrinsic Value Per Share");
         tickerSheet.value(16, 3, "Current Margin of Safety %");
         tickerSheet.value(17, 3, "Margin of Safety Target Prices");
-        tickerSheet.style(13, 3).bold();
-        tickerSheet.style(14, 3).bold();
-        tickerSheet.style(15, 3).bold();
-        tickerSheet.style(16, 3).bold();
-        tickerSheet.style(17, 3).bold().fontSize(23);
 
         tickerSheet.value(1, 4, "Free Cash Flow");
         tickerSheet.formula(2, 4, "(B10 - B11) * (1+$B$6)");
@@ -116,11 +129,17 @@ public class Main {
         tickerSheet.formula(10, 4, "E10*(1+$B$7)");
         tickerSheet.formula(11, 4, "E11*(1+$B$7)");
         tickerSheet.formula(12, 4, "B9 * E12");
+
         tickerSheet.value(17, 4, "10%");
         tickerSheet.value(18, 4, "20%");
         tickerSheet.value(19, 4, "30%");
         tickerSheet.value(20, 4, "40%");
         tickerSheet.value(21, 4, "50%");
+        tickerSheet.style(17, 4).horizontalAlignment("right").set();
+        tickerSheet.style(18, 4).horizontalAlignment("right").set();
+        tickerSheet.style(19, 4).horizontalAlignment("right").set();
+        tickerSheet.style(20, 4).horizontalAlignment("right").set();
+        tickerSheet.style(21, 4).horizontalAlignment("right").set();
 
         tickerSheet.value(1, 5, "Present Value");
         tickerSheet.formula(2, 5, "E3/POW(1+$B$8;D3)");
@@ -137,26 +156,45 @@ public class Main {
         tickerSheet.formula(13, 5, "SUM(F3:F13)");
         tickerSheet.formula(14, 5, "F14+B12");
         tickerSheet.formula(15, 5, "F15/B13");
+        tickerSheet.style(15, 5).format("0.00").set();
         tickerSheet.formula(16, 5, "1-(B3/F16)");
+        tickerSheet.style(16, 5).format("0.00%").set();
+
         tickerSheet.formula(17, 5, "$F$16*(1-E18)");
         tickerSheet.formula(18, 5, "$F$16*(1-E19)");
         tickerSheet.formula(19, 5, "$F$16*(1-E20)");
         tickerSheet.formula(20, 5, "$F$16*(1-E21)");
         tickerSheet.formula(21, 5, "$F$16*(1-E22)");
+        tickerSheet.style(17, 5).format("0.00").set();
+        tickerSheet.style(18, 5).format("0.00").set();
+        tickerSheet.style(19, 5).format("0.00").set();
+        tickerSheet.style(20, 5).format("0.00").set();
+        tickerSheet.style(21, 5).format("0.00").set();
 
 
         tickerSheet.range(13, 3, 13, 4).merge();
         tickerSheet.range(14, 3, 14, 4).merge();
         tickerSheet.range(15, 3, 15, 4).merge();
         tickerSheet.range(16, 3, 16, 4).merge();
-        tickerSheet.range(5, 0, 8, 1).style().borderColor("red");
+        tickerSheet.range(17, 3, 21, 3).merge();
+        tickerSheet.range(5, 0, 8, 1).style().borderStyle("solid").borderColor(BorderSide.RIGHT,
+            Color.RED).set();
 
-        summary.value(i + 1, 0, ticker.getTicker());
-        summary.value(i + 1, 1, discountRate);
-        summary.value(i + 1, 2, terminalValue);
-        summary.value(i + 1, 3, valuation);
-        summary.formula(i + 1, 4, "GOOGLEFINANCE(\"" + args[i] + "\")");
-        summary.formula(i + 1, 5, String.format("1 - (E%d / D%d)", i + 2, i + 2));
+        summary.hyperlink(i + 1, 0, HyperLink.internal(String.format("%s!A1", ticker.getTicker()), ticker.getTicker()));
+        summary.value(i + 1, 1, ticker.getTicker());
+        summary.value(i + 1, 2, discountRate);
+        summary.style(i + 1, 2 ).format("0.00%").set();
+        summary.value(i + 1, 3, terminalValue);
+        summary.formula(i + 1, 4, String.format("%s!F16", ticker.getTicker()));
+        summary.formula(i + 1, 5, "GOOGLEFINANCE(\"" + args[i] + "\")");
+        summary.formula(i + 1, 6, String.format("%s!F17", ticker.getTicker()));
+        summary.width(0, 20);
+        summary.width(1, 20);
+        summary.width(2, 20);
+        summary.width(3, 20);
+        summary.width(4, 20);
+        summary.width(5, 20);
+        summary.width(6, 20);
       }
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
